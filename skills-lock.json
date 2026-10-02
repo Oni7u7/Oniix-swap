@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "swap-integration": {
+      "source": "uniswap/uniswap-ai",
+      "sourceType": "github",
+      "skillPath": "packages/plugins/uniswap-trading/skills/swap-integration/SKILL.md",
+      "computedHash": "be8642111d4d211758248b34fba49117ad0ccb3d70e6c3e6af9b1f1028a5ecb7"
+    },
+    "viem-integration": {
+      "source": "uniswap/uniswap-ai",
+      "sourceType": "github",
+      "skillPath": "packages/plugins/uniswap-viem/skills/viem-integration/SKILL.md",
+      "computedHash": "90297ae94a88b74fd3c2cfbbba737712d538c38416101a2c8c039d9016220fe1"
+    }
+  }
+}
