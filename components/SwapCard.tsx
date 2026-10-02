@@ -129,7 +129,7 @@ export function SwapCard({ onActiveTokenChange }: SwapCardProps = {}) {
   const gasFeeUsd = quote && !isUniswapXQuote(quote) ? quote.quote.gasFeeUSD : null;
 
   // La API puede devolver una ruta gasless (DUTCH_V2/V3/PRIORITY) en vez de CLASSIC
-  // (posible en Base/Arbitrum). El MVP no soporta ese flujo de submisión — ver README.
+  // (posible en Ethereum/Base/Arbitrum). El MVP no soporta ese flujo de submisión — ver README.
   const isGaslessRoute = quote !== null && isUniswapXQuote(quote);
 
   const isSwapBusy = BUSY_STEPS.includes(swapState.step);
@@ -173,7 +173,7 @@ export function SwapCard({ onActiveTokenChange }: SwapCardProps = {}) {
     return (
       <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-2xl border border-amber-300 bg-amber-50 p-8 text-center dark:border-amber-900 dark:bg-amber-950">
         <p className="text-sm text-amber-800 dark:text-amber-300">
-          Red no soportada. Cambia a Base, Optimism, Polygon o Arbitrum.
+          Red no soportada. Cambia a Ethereum, Base, Optimism, Polygon o Arbitrum.
         </p>
         <ConnectButton />
       </div>

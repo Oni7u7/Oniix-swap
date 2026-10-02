@@ -20,7 +20,7 @@ export function BalancesPanel() {
   if (!chainId) {
     return (
       <div className="w-full max-w-md rounded-2xl border border-amber-300 bg-amber-50 p-5 text-center text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300">
-        Cambia a una red soportada (Base, Optimism, Polygon o Arbitrum) para ver tus balances.
+        Cambia a una red soportada (Ethereum, Base, Optimism, Polygon o Arbitrum) para ver tus balances.
       </div>
     );
   }

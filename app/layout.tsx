@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Oniix Swap",
-  description: "Swap tokens en Base, Optimism, Polygon y Arbitrum vía Uniswap",
+  description: "Swap tokens en Ethereum, Base, Optimism, Polygon y Arbitrum vía Uniswap",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

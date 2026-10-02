@@ -1,4 +1,4 @@
-import { base, optimism, polygon, arbitrum } from "viem/chains";
+import { base, mainnet, optimism, polygon, arbitrum } from "viem/chains";
 import type { SupportedChainId } from "./chains";
 
 /**
@@ -25,16 +25,55 @@ export interface TokenInfo {
  *
  * Fuentes verificadas:
  * - USDC: developers.circle.com/stablecoins/usdc-contract-addresses (Circle, emisor oficial)
+ * - WETH (Ethereum): contrato WETH9 canónico 0xC02a...6Cc2, coincide con la tabla
+ *   WETH_ADDRESSES de la skill swap-integration.
  * - WETH (Base/Optimism/Arbitrum): predeploy estándar OP-Stack 0x4200...0006 / dirección
  *   oficial de bridge en Arbitrum — coincide con la tabla WETH_ADDRESSES de la skill
  *   swap-integration (Advanced Patterns: WETH Handling on L2s).
  * - WPOL: docs.polygon.technology/pos/concepts/tokens/pol, verificado en Polygonscan.
- * - DAI: contratos oficiales de MakerDAO en cada L2, verificados en Basescan /
- *   Optimistic Etherscan / Arbiscan / Polygonscan.
- * - WBTC / cbBTC: verificados en Arbiscan / Optimistic Etherscan / Polygonscan / Basescan
+ * - DAI: contrato oficial de MakerDAO en Ethereum y en cada L2, verificados en Etherscan /
+ *   Basescan / Optimistic Etherscan / Arbiscan / Polygonscan.
+ * - WBTC / cbBTC: verificados en Etherscan / Arbiscan / Optimistic Etherscan / Polygonscan / Basescan
  *   (cbBTC es el BTC wrapped nativo de Base, emitido por Coinbase; WBTC en el resto).
  */
 export const TOKENS_BY_CHAIN: Record<SupportedChainId, TokenInfo[]> = {
+  [mainnet.id]: [
+    {
+      address: NATIVE_TOKEN_ADDRESS,
+      symbol: "ETH",
+      name: "Ether",
+      decimals: 18,
+      isNative: true,
+    },
+    {
+      address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      symbol: "WETH",
+      name: "Wrapped Ether",
+      decimals: 18,
+      isNative: false,
+    },
+    {
+      address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      symbol: "USDC",
+      name: "USD Coin",
+      decimals: 6,
+      isNative: false,
+    },
+    {
+      address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      symbol: "DAI",
+      name: "Dai Stablecoin",
+      decimals: 18,
+      isNative: false,
+    },
+    {
+      address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+      symbol: "WBTC",
+      name: "Wrapped BTC",
+      decimals: 8,
+      isNative: false,
+    },
+  ],
   [base.id]: [
     {
       address: NATIVE_TOKEN_ADDRESS,

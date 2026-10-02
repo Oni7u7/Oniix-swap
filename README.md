@@ -1,6 +1,6 @@
 # Oniix Swap
 
-MVP de swaps de tokens vía la [Trading API de Uniswap](https://docs.uniswap.org/), sobre **4 redes EVM mainnet**: Base, Optimism, Polygon y Arbitrum One.
+MVP de swaps de tokens vía la [Trading API de Uniswap](https://docs.uniswap.org/), sobre **5 redes EVM mainnet**: Ethereum, Base, Optimism, Polygon y Arbitrum One.
 
 ⚠️ **Esto corre en mainnet, con dinero real.** Lee la sección [Primer swap seguro](#primer-swap-seguro-antes-de-usar-montos-grandes) antes de probar.
 
@@ -36,7 +36,7 @@ Cliente (browser)
 
 La Trading API puede devolver rutas `CLASSIC` (gasful: el usuario firma y transmite la tx) o UniswapX `DUTCH_V2/V3/PRIORITY` (gasless: se firma una orden y la ejecuta un filler off-chain). La skill `swap-integration` documenta en detalle el flujo `/swap` para ambos casos, pero **no** documenta un endpoint separado de sumisión de orden — todo pasa por `/swap`, diferenciando solo si se envía o no `permitData`.
 
-La skill también documenta `routingPreference: "CLASSIC"` como valor válido para forzar solo rutas gasful — **probado en vivo contra la API real, ese valor no existe**: devuelve `400 RequestValidationError` (`"routingPreference" must be one of [BEST_PRICE, FASTEST]`). Así que en vez de intentar forzarlo por request, el MVP deja que `/quote` use su comportamiento por defecto y bloquea el botón de swap en el cliente si la ruta que vuelve es UniswapX (`isGaslessRoute` en `components/SwapCard.tsx`), mostrando un aviso en vez de ejecutar un flujo con menos cobertura de pruebas. UniswapX V2 solo aparece en Ethereum/Arbitrum/Base/Unichain, así que en Optimism y Polygon esto nunca debería activarse. `lib/uniswap-client.ts` ya maneja correctamente `permitData`/`signature` para ambos tipos de routing si en el futuro se quiere habilitar UniswapX de verdad.
+La skill también documenta `routingPreference: "CLASSIC"` como valor válido para forzar solo rutas gasful — **probado en vivo contra la API real, ese valor no existe**: devuelve `400 RequestValidationError` (`"routingPreference" must be one of [BEST_PRICE, FASTEST]`). Así que en vez de intentar forzarlo por request, el MVP deja que `/quote` use su comportamiento por defecto y bloquea el botón de swap en el cliente si la ruta que vuelve es UniswapX (`isGaslessRoute` en `components/SwapCard.tsx`), mostrando un aviso en vez de ejecutar un flujo con menos cobertura de pruebas. UniswapX V2 solo aparece en Ethereum/Arbitrum/Base/Unichain, así que en Optimism y Polygon esto nunca debería activarse. Ojo con Ethereum: según la skill, `BEST_PRICE` en mainnet suele devolver UniswapX, así que ahí el aviso puede aparecer más seguido que en las L2. `lib/uniswap-client.ts` ya maneja correctamente `permitData`/`signature` para ambos tipos de routing si en el futuro se quiere habilitar UniswapX de verdad.
 
 ## Setup
 
@@ -51,7 +51,7 @@ Completa `.env.local`:
 |---|---|---|
 | `UNISWAP_API_KEY` | https://developers.uniswap.org/ | Sí — solo backend |
 | `NEXT_PUBLIC_WC_PROJECT_ID` | https://cloud.walletconnect.com | No |
-| `NEXT_PUBLIC_RPC_URL_BASE/OPTIMISM/POLYGON/ARBITRUM` | Alchemy/Infura (una app por red, mainnet) | No, pero restringe por dominio |
+| `NEXT_PUBLIC_RPC_URL_ETHEREUM/BASE/OPTIMISM/POLYGON/ARBITRUM` | Alchemy/Infura (una app por red, mainnet) | No, pero restringe por dominio |
 | `ALCHEMY_API_KEY` | Alchemy (puede ser la misma app que las RPC_URL_* si tiene Prices API habilitada) | Sí — solo backend |
 | `ALCHEMY_ALLOWED_ORIGIN` | El mismo Origin que agregaste al allowlist de esa app en Alchemy | No, pero debe coincidir exacto con el allowlist |
 
@@ -61,7 +61,7 @@ La Prices API de Alchemy (`/app/api/price-history`, `/app/api/price-current`) ex
 
 Si dejas las `NEXT_PUBLIC_RPC_URL_*` vacías en desarrollo, la app cae automáticamente al RPC público de `viem/chains` (la consola del navegador te avisa con un warning si esto pasa).
 
-⚠️ **El RPC público solo alcanza para probar `/quote`** (solo lectura). Para probar approvals y swaps de verdad, configura las 4 `NEXT_PUBLIC_RPC_URL_*` con RPCs reales (Alchemy/Infura) **antes** de tocar el flujo de escritura — el RPC público es lento devolviendo `transaction receipts`, y `waitForTransactionReceipt` puede agotar su timeout aunque la transacción ya haya confirmado on-chain (verías el error de timeout en la UI mientras Etherscan/Basescan/etc. ya muestra la tx como exitosa). La app reintenta el receipt con backoff si esto pasa (ver `lib/hooks/useSwap.ts`), pero un RPC real evita el problema de raíz y hace todo el flujo más rápido.
+⚠️ **El RPC público solo alcanza para probar `/quote`** (solo lectura). Para probar approvals y swaps de verdad, configura las 5 `NEXT_PUBLIC_RPC_URL_*` con RPCs reales (Alchemy/Infura) **antes** de tocar el flujo de escritura — el RPC público es lento devolviendo `transaction receipts`, y `waitForTransactionReceipt` puede agotar su timeout aunque la transacción ya haya confirmado on-chain (verías el error de timeout en la UI mientras Etherscan/Basescan/etc. ya muestra la tx como exitosa). La app reintenta el receipt con backoff si esto pasa (ver `lib/hooks/useSwap.ts`), pero un RPC real evita el problema de raíz y hace todo el flujo más rápido.
 
 ## Correr en dev
 
@@ -83,9 +83,9 @@ npx tsc --noEmit  # typecheck
 ## Primer swap seguro (antes de usar montos grandes)
 
 1. **Usa una wallet dedicada con fondos limitados** para probar esta app por primera vez — no tu wallet principal.
-2. Prueba `/quote` a fondo primero: es de solo lectura y gratis. Cambia de red, cambia de tokens, cambia el monto, y revisa que el precio, el mínimo a recibir y el gas estimado tengan sentido en cada una de las 4 redes.
+2. Prueba `/quote` a fondo primero: es de solo lectura y gratis. Cambia de red, cambia de tokens, cambia el monto, y revisa que el precio, el mínimo a recibir y el gas estimado tengan sentido en cada una de las 5 redes. En Ethereum el gas suele costar más que en las L2 y sube mucho en momentos de congestión: revisa el gas estimado en USD antes de swaps chicos.
 3. Cuando hagas el primer swap real, usa el **monto más pequeño posible** (ej. unos centavos de USDC) para verificar que todo el flujo —approval si aplica, firma del permit, transacción, confirmación— funciona de punta a punta antes de mover montos mayores.
-4. Verifica el hash de la transacción en el explorador correcto de la red (el link en pantalla ya apunta a Basescan/Optimistic Etherscan/Polygonscan/Arbiscan según corresponda).
+4. Verifica el hash de la transacción en el explorador correcto de la red (el link en pantalla ya apunta a Etherscan/Basescan/Optimistic Etherscan/Polygonscan/Arbiscan según corresponda).
 5. Sube el slippage con cuidado: valores altos (⩾5%, marcado en la UI) te protegen menos de sandwich attacks.
 
 ## Despliegue

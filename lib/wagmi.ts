@@ -1,6 +1,6 @@
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { http } from "wagmi";
-import { arbitrum, base, optimism, polygon } from "wagmi/chains";
+import { arbitrum, base, mainnet, optimism, polygon } from "wagmi/chains";
 
 const walletConnectProjectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
 if (!walletConnectProjectId) {
@@ -8,6 +8,7 @@ if (!walletConnectProjectId) {
 }
 
 const RPC_ENV_BY_CHAIN: Record<string, string | undefined> = {
+  Ethereum: process.env.NEXT_PUBLIC_RPC_URL_ETHEREUM,
   Base: process.env.NEXT_PUBLIC_RPC_URL_BASE,
   Optimism: process.env.NEXT_PUBLIC_RPC_URL_OPTIMISM,
   Polygon: process.env.NEXT_PUBLIC_RPC_URL_POLYGON,
@@ -22,7 +23,7 @@ const RPC_ENV_BY_CHAIN: Record<string, string | undefined> = {
  *
  * El RPC público es aceptable para /quote (solo lectura), pero NO para probar el flujo
  * de swap completo: waitForTransactionReceipt puede agotar su timeout contra un RPC
- * público lento aunque la tx ya haya confirmado on-chain. Configura las 4
+ * público lento aunque la tx ya haya confirmado on-chain. Configura las 5
  * NEXT_PUBLIC_RPC_URL_* reales antes de probar approvals/swaps — ver README.
  */
 if (process.env.NODE_ENV !== "production") {
@@ -39,8 +40,9 @@ if (process.env.NODE_ENV !== "production") {
 export const wagmiConfig = getDefaultConfig({
   appName: "Oniix Swap",
   projectId: walletConnectProjectId,
-  chains: [base, optimism, polygon, arbitrum],
+  chains: [mainnet, base, optimism, polygon, arbitrum],
   transports: {
+    [mainnet.id]: http(process.env.NEXT_PUBLIC_RPC_URL_ETHEREUM),
     [base.id]: http(process.env.NEXT_PUBLIC_RPC_URL_BASE),
     [optimism.id]: http(process.env.NEXT_PUBLIC_RPC_URL_OPTIMISM),
     [polygon.id]: http(process.env.NEXT_PUBLIC_RPC_URL_POLYGON),
@@ -50,7 +52,7 @@ export const wagmiConfig = getDefaultConfig({
 });
 
 // Registra el tipo concreto de la config para que useConfig()/useAccount()/etc.
-// devuelvan tipos narrowed a nuestras 4 chains en vez del Config genérico de wagmi
+// devuelvan tipos narrowed a nuestras 5 chains en vez del Config genérico de wagmi
 // (sin esto, sendTransaction infiere "chain: never" en los call sites).
 declare module "wagmi" {
   interface Register {

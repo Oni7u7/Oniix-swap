@@ -1,15 +1,15 @@
-import { arbitrum, base, optimism, polygon } from "viem/chains";
+import { arbitrum, base, mainnet, optimism, polygon } from "viem/chains";
 import type { Chain } from "viem";
 
 /**
- * Las 4 redes EVM soportadas por el MVP. Todo lo demás en la app deriva de esta lista:
+ * Las 5 redes EVM soportadas por el MVP. Todo lo demás en la app deriva de esta lista:
  * no hardcodear chainIds sueltos en otros archivos.
  *
  * TODO(fase 2 — Solana): Solana es non-EVM, no pasa por la Trading API ni por
  * wagmi/viem. Se integraría por separado con Jupiter (Ultra API) + un wallet adapter
  * de Solana. No agregar código ni dependencias de Solana hasta esa fase.
  */
-export const SUPPORTED_CHAIN_IDS = [base.id, optimism.id, polygon.id, arbitrum.id] as const;
+export const SUPPORTED_CHAIN_IDS = [mainnet.id, base.id, optimism.id, polygon.id, arbitrum.id] as const;
 
 export type SupportedChainId = (typeof SUPPORTED_CHAIN_IDS)[number];
 
@@ -18,6 +18,7 @@ export function isSupportedChainId(chainId: number): chainId is SupportedChainId
 }
 
 export const VIEM_CHAINS: Record<SupportedChainId, Chain> = {
+  [mainnet.id]: mainnet,
   [base.id]: base,
   [optimism.id]: optimism,
   [polygon.id]: polygon,
@@ -26,7 +27,7 @@ export const VIEM_CHAINS: Record<SupportedChainId, Chain> = {
 
 interface ChainMeta {
   name: string;
-  /** Símbolo del token nativo de la red (ETH en Base/Optimism/Arbitrum, POL en Polygon) */
+  /** Símbolo del token nativo de la red (ETH en Ethereum/Base/Optimism/Arbitrum, POL en Polygon) */
   nativeSymbol: string;
   nativeDecimals: number;
   explorerName: string;
@@ -36,6 +37,14 @@ interface ChainMeta {
 }
 
 export const CHAIN_METADATA: Record<SupportedChainId, ChainMeta> = {
+  [mainnet.id]: {
+    name: "Ethereum",
+    nativeSymbol: "ETH",
+    nativeDecimals: 18,
+    explorerName: "Etherscan",
+    explorerBaseUrl: "https://etherscan.io",
+    rpcEnvVar: "NEXT_PUBLIC_RPC_URL_ETHEREUM",
+  },
   [base.id]: {
     name: "Base",
     nativeSymbol: "ETH",
@@ -76,6 +85,7 @@ export const CHAIN_METADATA: Record<SupportedChainId, ChainMeta> = {
  * que usan otras APIs de Alchemy para otros productos, no reusar sin verificar.
  */
 export const ALCHEMY_NETWORK_SLUG: Record<SupportedChainId, string> = {
+  [mainnet.id]: "eth-mainnet",
   [base.id]: "base-mainnet",
   [optimism.id]: "opt-mainnet",
   [polygon.id]: "polygon-mainnet",
